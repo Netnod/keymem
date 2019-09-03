@@ -56,8 +56,13 @@ module tb_keymem();
   localparam ADDR_NAME1         = 8'h01;
   localparam ADDR_VERSION       = 8'h02;
 
-  localparam ADDR_CURRENT_KEY   = 8'h08;
-  localparam ADDR_VALID_KEYS    = 8'h09;
+  localparam ADDR_CTRL          = 8'h08;
+  localparam CTRL_KEY0_VALID    = 0;
+  localparam CTRL_KEY1_VALID    = 1;
+  localparam CTRL_KEY2_VALID    = 2;
+  localparam CTRL_KEY3_VALID    = 3;
+  localparam CTRL_CURR_LOW      = 16;
+  localparam CTRL_CURR_HIGH     = 17;
 
   localparam ADDR_KEY0_ID       = 8'h10;
   localparam ADDR_KEY0_LENGTH   = 8'h11;
@@ -181,10 +186,8 @@ module tb_keymem();
   task dump_dut_state;
     begin
       $display("cycle: 0x%016x", cycle_ctr);
-      $display("State of DUT");
-      $display("------------");
-
-
+      $display("Inputs and outputs:");
+      $display("-------------------");
       $display("\n");
     end
   endtask // dump_dut_state
@@ -225,6 +228,70 @@ module tb_keymem();
         end
     end
   endtask // display_test_results
+
+
+  //----------------------------------------------------------------
+  // dump_keys()
+  //
+  // Access the DUT directly to dump the contents of the memory
+  //----------------------------------------------------------------
+  task dump_keys;
+    begin
+      $display("Key status:");
+      $display("-----------");
+      $display("key0:");
+      $display("length: 0x%01x, valid: 0x%01x, id: 0x%08x",
+               dut.key0_length_reg, dut.key0_valid_reg, dut.key0_id_reg);
+      $display("00: 0x%08x, 01: 0x%08x, 02: 0x%08x, 03: 0x%08x",
+               dut.key0[0], dut.key0[1], dut.key0[2], dut.key0[3]);
+      $display("04: 0x%08x, 05: 0x%08x, 06: 0x%08x, 07: 0x%08x",
+               dut.key0[4], dut.key0[5], dut.key0[6], dut.key0[7]);
+      $display("08: 0x%08x, 09: 0x%08x, 0a: 0x%08x, 0b: 0x%08x",
+               dut.key0[8], dut.key0[9], dut.key0[10], dut.key0[11]);
+      $display("0c: 0x%08x, 0d: 0x%08x, 0e: 0x%08x, 0f: 0x%08x",
+               dut.key0[12], dut.key0[13], dut.key0[14], dut.key0[15]);
+      $display("");
+
+      $display("key1:");
+      $display("length: 0x%01x, valid: 0x%01x, id: 0x%08x",
+               dut.key1_length_reg, dut.key1_valid_reg, dut.key1_id_reg);
+      $display("00: 0x%08x, 01: 0x%08x, 02: 0x%08x, 03: 0x%08x",
+               dut.key1[0], dut.key1[1], dut.key1[2], dut.key1[3]);
+      $display("04: 0x%08x, 05: 0x%08x, 06: 0x%08x, 07: 0x%08x",
+               dut.key1[4], dut.key1[5], dut.key1[6], dut.key1[7]);
+      $display("08: 0x%08x, 09: 0x%08x, 0a: 0x%08x, 0b: 0x%08x",
+               dut.key1[8], dut.key1[9], dut.key1[10], dut.key1[11]);
+      $display("0c: 0x%08x, 0d: 0x%08x, 0e: 0x%08x, 0f: 0x%08x",
+               dut.key1[12], dut.key1[13], dut.key1[14], dut.key1[15]);
+      $display("");
+
+      $display("key2:");
+      $display("length: 0x%01x, valid: 0x%01x, id: 0x%08x",
+               dut.key2_length_reg, dut.key2_valid_reg, dut.key2_id_reg);
+      $display("00: 0x%08x, 01: 0x%08x, 02: 0x%08x, 03: 0x%08x",
+               dut.key2[0], dut.key2[1], dut.key2[2], dut.key2[3]);
+      $display("04: 0x%08x, 05: 0x%08x, 06: 0x%08x, 07: 0x%08x",
+               dut.key2[4], dut.key2[5], dut.key2[6], dut.key2[7]);
+      $display("08: 0x%08x, 09: 0x%08x, 0a: 0x%08x, 0b: 0x%08x",
+               dut.key2[8], dut.key2[9], dut.key2[10], dut.key2[11]);
+      $display("0c: 0x%08x, 0d: 0x%08x, 0e: 0x%08x, 0f: 0x%08x",
+               dut.key2[12], dut.key2[13], dut.key2[14], dut.key2[15]);
+      $display("");
+
+      $display("key3:");
+      $display("length: 0x%01x, valid: 0x%01x, id: 0x%08x",
+               dut.key3_length_reg, dut.key3_valid_reg, dut.key3_id_reg);
+      $display("00: 0x%08x, 01: 0x%08x, 02: 0x%08x, 03: 0x%08x",
+               dut.key3[0], dut.key3[1], dut.key3[2], dut.key3[3]);
+      $display("04: 0x%08x, 05: 0x%08x, 06: 0x%08x, 07: 0x%08x",
+               dut.key3[4], dut.key3[5], dut.key3[6], dut.key3[7]);
+      $display("08: 0x%08x, 09: 0x%08x, 0a: 0x%08x, 0b: 0x%08x",
+               dut.key3[8], dut.key3[9], dut.key3[10], dut.key3[11]);
+      $display("0c: 0x%08x, 0d: 0x%08x, 0e: 0x%08x, 0f: 0x%08x",
+               dut.key3[12], dut.key3[13], dut.key3[14], dut.key3[15]);
+      $display("");
+    end
+  endtask // read_word
 
 
   //----------------------------------------------------------------
@@ -304,6 +371,37 @@ module tb_keymem();
   endtask // read_word
 
 
+
+  //----------------------------------------------------------------
+
+  //----------------------------------------------------------------
+  task tc1_write_keys;
+    begin : tc1_write_keys
+      reg [7 : 0] i;
+
+      $display("*** TC1: Write keys test started.");
+      tc_ctr = tc_ctr + 1;
+
+      for (i = 8'h0 ; i < 8'h04 ; i = i + 1'h1)
+        begin
+          write_word((ADDR_KEY0_START + i), {i, i, i, i});
+
+          write_word((ADDR_KEY1_START + i), {(8'h10 + i), (8'h10 + i),
+                                             (8'h10 + i), (8'h10 + i)});
+
+          write_word((ADDR_KEY2_START + i), {(8'h20 + i), (8'h20 + i),
+                                             (8'h20 + i), (8'h20 + i)});
+
+          write_word((ADDR_KEY3_START + i), {(8'h30 + i), (8'h30 + i),
+                                             (8'h30 + i), (8'h30 + i)});
+        end
+
+      dump_keys();
+
+      $display("*** TC1: Write keys test completed.");
+    end
+  endtask // tc1_write_keys
+
   //----------------------------------------------------------------
   // main
   //
@@ -316,9 +414,9 @@ module tb_keymem();
       $display("");
 
       init_sim();
-      dump_dut_state();
+      dump_keys();
       reset_dut();
-      dump_dut_state();
+      tc1_write_keys();
 
       $display("");
       $display("*** NTS keymem simulation done. ***");
