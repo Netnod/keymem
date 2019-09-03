@@ -69,8 +69,13 @@ module keymem(
   localparam ADDR_NAME1         = 8'h01;
   localparam ADDR_VERSION       = 8'h02;
 
-  localparam ADDR_CURRENT_KEY   = 8'h08;
-  localparam ADDR_VALID_KEYS    = 8'h09;
+  localparam ADDR_CTRL          = 8'h08;
+  localparam CTRL_KEY0_VALID    = 0;
+  localparam CTRL_KEY1_VALID    = 1;
+  localparam CTRL_KEY2_VALID    = 2;
+  localparam CTRL_KEY3_VALID    = 3;
+  localparam CTRL_CURR_LOW      = 16;
+  localparam CTRL_CURR_HIGH     = 17;
 
   localparam ADDR_KEY0_ID       = 8'h10;
   localparam ADDR_KEY0_LENGTH   = 8'h11;
@@ -102,12 +107,12 @@ module keymem(
   localparam ADDR_KEY3_START    = 8'h70;
   localparam ADDR_KEY3_END      = 8'h7f;
 
-  localparam CORE_NAME0         = 32'h6b65795f; // "key_"
-  localparam CORE_NAME1         = 32'h6d656d20; // "mem "
-  localparam CORE_VERSION       = 32'h302e3130; // "0.10"
+  localparam CORE_NAME0   = 32'h6b65795f; // "key_"
+  localparam CORE_NAME1   = 32'h6d656d20; // "mem "
+  localparam CORE_VERSION = 32'h302e3130; // "0.10"
 
-  localparam CTRL_IDLE          = 1'h0;
-  localparam CTRL_DONE          = 1'h1;
+  localparam CTRL_IDLE = 1'h0;
+  localparam CTRL_DONE = 1'h1;
 
   localparam KW0 = ADDR_KEY0_END - ADDR_KEY0_START;
   localparam KW1 = ADDR_KEY1_END - ADDR_KEY1_START;
@@ -204,7 +209,6 @@ module keymem(
   reg          mux_ctrl_we;
 
   reg [1 : 0]  current_key_reg;
-  reg          current_key_we;
 
   reg          ready_reg;
   reg          ready_new;
@@ -227,7 +231,7 @@ module keymem(
   reg          set_current_key;
   reg          set_key_with_id;
 
-  reg          valid_keys_we;
+  reg          key_ctrl_we;
 
 
   //----------------------------------------------------------------
@@ -345,19 +349,17 @@ module keymem(
           if (error_ctr_we)
             error_ctr_reg <= error_ctr_new;
 
-          if (valid_keys_we)
+          if (key_ctrl_we)
             begin
-              key0_valid_reg <= write_data[0];
-              key1_valid_reg <= write_data[1];
-              key2_valid_reg <= write_data[2];
-              key3_valid_reg <= write_data[3];
+              key0_valid_reg  <= write_data[CTRL_KEY0_VALID];
+              key1_valid_reg  <= write_data[CTRL_KEY1_VALID];
+              key2_valid_reg  <= write_data[CTRL_KEY2_VALID];
+              key3_valid_reg  <= write_data[CTRL_KEY3_VALID];
+              current_key_reg <= write_data[CTRL_CURR_HIGH : CTRL_CURR_LOW];
             end
 
           if (key_valid_we)
             key_valid_reg <= key_valid_new;
-
-          if (current_key_we)
-            current_key_reg <= write_data[1 : 0];
 
           if (mux_ctrl_we)
             mux_ctrl_reg <= mux_ctrl_new;
@@ -663,8 +665,7 @@ module keymem(
   //----------------------------------------------------------------
   always @*
     begin : api
-      valid_keys_we  = 1'h0;
-      current_key_we = 1'h0;
+      key_ctrl_we    = 1'h0;
       key0_we        = 1'h0;
       key0_id_we     = 1'h0;
       key0_length_we = 1'h0;
@@ -689,21 +690,20 @@ module keymem(
           if (we)
             begin
               case (address)
-                ADDR_CURRENT_KEY:   current_key_we  = 1'h1;
-                ADDR_VALID_KEYS:    valid_keys_we   = 1'h1;
-                ADDR_KEY0_ID:       key0_id_we      = 1'h1;
-                ADDR_KEY0_LENGTH:   key0_length_we  = 1'h1;
-                ADDR_KEY1_ID:       key1_id_we      = 1'h1;
-                ADDR_KEY1_LENGTH:   key1_length_we  = 1'h1;
-                ADDR_KEY2_ID:       key2_id_we      = 1'h1;
-                ADDR_KEY2_LENGTH:   key2_length_we  = 1'h1;
-                ADDR_KEY3_ID:       key3_id_we      = 1'h1;
-                ADDR_KEY3_LENGTH:   key3_length_we  = 1'h1;
-                ADDR_KEY0_COUNTER:  key0_ctr_rst    = 1'h1;
-                ADDR_KEY1_COUNTER:  key1_ctr_rst    = 1'h1;
-                ADDR_KEY2_COUNTER:  key2_ctr_rst    = 1'h1;
-                ADDR_KEY3_COUNTER:  key3_ctr_rst    = 1'h1;
-                ADDR_ERROR_COUNTER: error_ctr_rst   = 1'h1;
+                ADDR_CTRL:          key_ctrl_we    = 1'h1;
+                ADDR_KEY0_ID:       key0_id_we     = 1'h1;
+                ADDR_KEY0_LENGTH:   key0_length_we = 1'h1;
+                ADDR_KEY1_ID:       key1_id_we     = 1'h1;
+                ADDR_KEY1_LENGTH:   key1_length_we = 1'h1;
+                ADDR_KEY2_ID:       key2_id_we     = 1'h1;
+                ADDR_KEY2_LENGTH:   key2_length_we = 1'h1;
+                ADDR_KEY3_ID:       key3_id_we     = 1'h1;
+                ADDR_KEY3_LENGTH:   key3_length_we = 1'h1;
+                ADDR_KEY0_COUNTER:  key0_ctr_rst   = 1'h1;
+                ADDR_KEY1_COUNTER:  key1_ctr_rst   = 1'h1;
+                ADDR_KEY2_COUNTER:  key2_ctr_rst   = 1'h1;
+                ADDR_KEY3_COUNTER:  key3_ctr_rst   = 1'h1;
+                ADDR_ERROR_COUNTER: error_ctr_rst  = 1'h1;
                 default:
                   begin
                   end
@@ -729,8 +729,8 @@ module keymem(
                 ADDR_NAME1:         tmp_read_data = CORE_NAME1;
                 ADDR_VERSION:       tmp_read_data = CORE_VERSION;
 
-                ADDR_CURRENT_KEY:   tmp_read_data = {30'h0, current_key_reg};
-                ADDR_VALID_KEYS:    tmp_read_data = {28'h0, key3_valid_reg,
+                ADDR_CTRL:          tmp_read_data = {14'h0, current_key_reg,
+                                                     12'h0, key3_valid_reg,
                                                      key2_valid_reg,
                                                      key1_valid_reg,
                                                      key0_valid_reg};
