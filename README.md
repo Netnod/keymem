@@ -26,6 +26,13 @@ The keymem currently supports four 512-bit keys. Each key has an
 associated 32-bit ID as well as metadata for actual key length and if
 the key is valid or not.
 
+The host can set which of the keys is the current server key as well as
+setting or clearing the valid bits as an atomic operation.
+
+The statistics counters are non saturating. The counters support write
+to clear to allow the host to reset the counters at will.
+
+
 ### Host interface
 The host interface mimics a synchronous memory with 8-bit address and
 32-bit data.
