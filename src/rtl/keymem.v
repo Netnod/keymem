@@ -811,9 +811,12 @@ module keymem(
           begin
             ready_new       = 1'h1;
             ready_we        = 1'h1;
-            set_current_key = 1'h1;
-            keymem_ctrl_new = CTRL_IDLE;
-            keymem_ctrl_we  = 1'h1;
+
+            if (!get_current_key & !get_key_with_id)
+              begin
+                keymem_ctrl_new = CTRL_IDLE;
+                keymem_ctrl_we  = 1'h1;
+              end
           end
       endcase // case (keymem_ctrl_reg)
     end // block: keymem_ctrl
