@@ -64,6 +64,7 @@ lint:  $(KEYMEM_SRC)
 
 clean:
 	rm -f keymem.sim
+	rm -f *.vcd
 
 
 help:

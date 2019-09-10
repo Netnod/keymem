@@ -200,14 +200,50 @@ module tb_keymem();
   //----------------------------------------------------------------
   task reset_dut;
     begin
-      $display("*** Toggling reset.");
       tb_areset = 1;
 
       #(2 * CLK_PERIOD);
       tb_areset = 0;
-      $display("");
     end
   endtask // reset_dut
+
+  task verify_reset;
+    begin: verify_reset
+      reg verify_reset_error;
+      reg [7 : 0] i;
+      verify_reset_error = 0;
+
+      for (i = 8'h0 ; i < 8'h10 && !verify_reset_error ; i = i + 1'h1)
+        begin
+          read_word((ADDR_KEY0_START + i));
+          if (read_data != 32'h0)
+          begin
+            verify_reset_error = 1;
+          end
+          read_word((ADDR_KEY1_START + i));
+          if (read_data != 32'h0)
+          begin
+            verify_reset_error = 1;
+          end
+          read_word((ADDR_KEY2_START + i));
+          if (read_data != 32'h0)
+          begin
+            verify_reset_error = 1;
+          end
+          read_word((ADDR_KEY3_START + i));
+          if (read_data != 32'h0)
+          begin
+            verify_reset_error = 1;
+          end
+        end
+      tc_ctr = tc_ctr + 1;
+      if (verify_reset_error)
+      begin
+        $display("*** TC01: Error in reset test at iteration  %02d", i);
+        error_ctr = error_ctr + 1;
+      end
+    end
+  endtask // verify_reset
 
 
   //----------------------------------------------------------------
@@ -317,6 +353,7 @@ module tb_keymem();
       dut_get_key_with_id = 1'h0;
       dut_server_key_id   = 32'h0;
       dut_key_word        = 4'h0;
+      $display("*** init_sim() complete.");
     end
   endtask // init_sim
 
@@ -339,7 +376,7 @@ module tb_keymem();
       dut_write_data = word;
       dut_cs = 1;
       dut_we = 1;
-      #(2 * CLK_PERIOD);
+      #(1 * CLK_PERIOD);
       dut_cs = 0;
       dut_we = 0;
     end
@@ -370,37 +407,257 @@ module tb_keymem();
     end
   endtask // read_word
 
-
-
-  //----------------------------------------------------------------
-
-  //----------------------------------------------------------------
-  task tc1_write_keys;
-    begin : tc1_write_keys
-      reg [7 : 0] i;
-
-      $display("*** TC1: Write keys test started.");
-      tc_ctr = tc_ctr + 1;
-
-      for (i = 8'h0 ; i < 8'h04 ; i = i + 1'h1)
-        begin
-          write_word((ADDR_KEY0_START + i), {i, i, i, i});
-
-          write_word((ADDR_KEY1_START + i), {(8'h10 + i), (8'h10 + i),
-                                             (8'h10 + i), (8'h10 + i)});
-
-          write_word((ADDR_KEY2_START + i), {(8'h20 + i), (8'h20 + i),
-                                             (8'h20 + i), (8'h20 + i)});
-
-          write_word((ADDR_KEY3_START + i), {(8'h30 + i), (8'h30 + i),
-                                             (8'h30 + i), (8'h30 + i)});
-        end
-
-      dump_keys();
-
-      $display("*** TC1: Write keys test completed.");
+  task write_key(input [11 : 0]  address, input [0 : 511] key);
+    begin : write_key
+      integer i;
+      for (i = 4'h0 ; i <= 4'hf ; i = i + 1'h1)
+      begin
+        //$display("*** Writing 0x%08x from 0x%02x at iteration %02d.", key[32*i +: 32], (address + i), i);
+        write_word((address + i), key[32*i +: 32]);
+      end
     end
-  endtask // tc1_write_keys
+  endtask
+
+
+
+  //----------------------------------------------------------------
+
+  //----------------------------------------------------------------
+  task tc1_static_write_keys;
+    begin : tc1_static_write_keys
+      write_key(ADDR_KEY0_START, {
+        {4{8'h0}}, {4{8'h01}}, {4{8'h02}}, {4{8'h03}},
+        {4{8'h04}}, {4{8'h05}}, {4{8'h06}}, {4{8'h07}},
+        {4{8'h08}}, {4{8'h09}}, {4{8'h0a}}, {4{8'h0b}},
+        {4{8'h0c}}, {4{8'h0d}}, {4{8'h0e}}, {4{8'h0f}}});
+      write_word(ADDR_KEY0_ID, 32'haa11);
+      write_word(ADDR_KEY0_LENGTH, {31'h0, 1'h1});
+      write_key(ADDR_KEY1_START, {
+        {4{8'h10}}, {4{8'h11}}, {4{8'h12}}, {4{8'h13}},
+        {4{8'h14}}, {4{8'h15}}, {4{8'h16}}, {4{8'h17}},
+        {4{8'h18}}, {4{8'h19}}, {4{8'h1a}}, {4{8'h1b}},
+        {4{8'h1c}}, {4{8'h1d}}, {4{8'h1e}}, {4{8'h1f}}});
+      write_word(ADDR_KEY1_ID, 32'hbb22);
+      write_word(ADDR_KEY1_LENGTH, {31'h0, 1'h1});
+      write_key(ADDR_KEY2_START, {
+        {4{8'h20}}, {4{8'h21}}, {4{8'h22}}, {4{8'h23}},
+        {4{8'h24}}, {4{8'h25}}, {4{8'h26}}, {4{8'h27}},
+        {4{8'h28}}, {4{8'h29}}, {4{8'h2a}}, {4{8'h2b}},
+        {4{8'h2c}}, {4{8'h2d}}, {4{8'h2e}}, {4{8'h2f}}});
+      write_word(ADDR_KEY2_ID, 32'hcc33);
+      write_word(ADDR_KEY2_LENGTH, {31'h0, 1'h1});
+      write_key(ADDR_KEY3_START, {
+        {4{8'h30}}, {4{8'h31}}, {4{8'h32}}, {4{8'h33}},
+        {4{8'h34}}, {4{8'h35}}, {4{8'h36}}, {4{8'h37}},
+        {4{8'h38}}, {4{8'h39}}, {4{8'h3a}}, {4{8'h3b}},
+        {4{8'h3c}}, {4{8'h3d}}, {4{8'h3e}}, {4{8'h3f}}});
+      write_word(ADDR_KEY3_ID, 32'hdd44);
+      write_word(ADDR_KEY3_LENGTH, {31'h0, 1'h1});
+    end
+  endtask
+
+  task tc2_static_verify_keys_reg;
+    begin : tc1_write_keys_reg
+      reg [7 : 0] i;
+      reg verify_static_keys_error;
+      verify_static_keys_error = 0;
+
+      for (i = 8'h0 ; i < 8'h10 && !verify_static_keys_error ; i = i + 1'h1)
+      begin
+        read_word((ADDR_KEY0_START + i));
+        if (read_data != {i, i, i, i})
+        begin
+          verify_static_keys_error = 1;
+          $display("*** TC02: Error in verifyin word %02d of KEY0", i);
+        end
+      end
+
+      for (i = 8'h0 ; i < 8'h10 && !verify_static_keys_error ; i = i + 1'h1)
+      begin
+        read_word((ADDR_KEY1_START + i));
+        if (read_data != {8'h10 + i, 8'h10 + i, 8'h10 + i, 8'h10 + i})
+        begin
+          verify_static_keys_error = 1;
+          $display("*** TC02: Error in verifyin word %02d of KEY1", i);
+        end
+      end
+
+      for (i = 8'h0 ; i < 8'h10 && !verify_static_keys_error ; i = i + 1'h1)
+      begin
+        read_word((ADDR_KEY2_START + i));
+        if (read_data != {8'h20 + i, 8'h20 + i, 8'h20 + i, 8'h20 + i})
+        begin
+          verify_static_keys_error = 1;
+          $display("*** TC02: Error in verifyin word %02d of KEY2", i);
+        end
+      end
+
+      for (i = 8'h0 ; i < 8'h10 && !verify_static_keys_error ; i = i + 1'h1)
+      begin
+        read_word((ADDR_KEY3_START + i));
+        if (read_data != {8'h30 + i, 8'h30 + i, 8'h30 + i, 8'h30 + i})
+        begin
+          verify_static_keys_error = 1;
+          $display("*** TC02: Error in verifyin word %02d of KEY3", i);
+        end
+      end
+
+      tc_ctr = tc_ctr + 1;
+      if (verify_static_keys_error)
+      begin
+        error_ctr = error_ctr + 1;
+      end
+    end
+  endtask
+
+  task tc3_write_current_key;
+    begin : tc3_write_current_key
+      write_word(ADDR_CTRL,
+        {14'h0, 2'h2, 12'h0, 1'h1,
+          1'h1, 1'h1, 1'h1});
+
+    end
+  endtask
+
+  task tc3_verify_current_key_reg;
+    begin : tc3_verify_current_key_reg
+      tc_ctr = tc_ctr + 1;
+      read_word(ADDR_CTRL);
+      if (read_data[CTRL_CURR_HIGH : CTRL_CURR_LOW] != 2'h2)
+      begin
+        $display("*** TC03: Error verifying current key register");
+        error_ctr = error_ctr + 1;
+      end
+    end
+  endtask
+
+  task tc4_verify_current_key_read;
+    begin : tc4_verify_current_key_read
+      reg [4 : 0] i;
+      reg verify_current_key_read_error;
+      verify_current_key_read_error = 0;
+      for (i = 0 ; i < 16 && !verify_current_key_read_error ; i = i + 1)
+      begin
+        dut_key_word = i;
+        dut_get_current_key = 1'h1;
+        #(1 * CLK_PERIOD);
+        if (dut_key_length != {31'h0, 1'h1})
+        begin
+          verify_current_key_read_error = 1;
+        end
+        if (dut_key_id != 32'hcc33)
+        begin
+          verify_current_key_read_error = 1;
+        end
+        if (dut_key_data != {8'h20 + i, 8'h20 + i, 8'h20 + i, 8'h20 + i})
+        begin
+          verify_current_key_read_error = 1;
+        end
+        dut_get_current_key = 1'h0;
+        #(CLK_PERIOD);
+      end
+      if (verify_current_key_read_error)
+      begin
+        $display("*** Error verifying current key read");
+        error_ctr = error_ctr + 1;
+      end
+    end
+  endtask
+
+  task tc5_write_current_key_as_invalid;
+    begin : tc1_write_keys
+      write_word(ADDR_CTRL,
+        {14'h0, 2'h1, 12'h0, 1'h0,
+          1'h0, 1'h0, 1'h0});
+    end
+  endtask
+
+  task tc5_verify_current_key_read_as_invalid;
+    begin : tc5_verify_current_key_read_as_invalid
+      reg [4 : 0] i;
+      reg verify_current_key_read_as_invalid_error;
+      verify_current_key_read_as_invalid_error = 0;
+      for (i = 0 ; i < 16 && !verify_current_key_read_as_invalid_error ; i = i + 1)
+      begin
+        dut_key_word <= i;
+        dut_get_current_key <= 1'h1;
+        #(1 * CLK_PERIOD);
+        if (dut_key_data != {8'h20 + i, 8'h20 + i, 8'h20 + i, 8'h20 + i})
+        begin
+          verify_current_key_read_as_invalid_error = 1;
+        end
+        dut_get_current_key = 1'h0;
+        #(CLK_PERIOD);
+      end
+      tc_ctr = tc_ctr + 1;
+      if (!verify_current_key_read_as_invalid_error)
+      begin
+        $display("*** TC05: Current key read even though it is invalid");
+        error_ctr = error_ctr + 1;
+      end
+    end
+  endtask
+
+  task tc6_verify_key_counter(input [31 : 0]  expected);
+    begin : write_key
+      read_word(ADDR_KEY2_COUNTER);
+      if (read_data != expected)
+      begin
+        $display("*** TC06: FAIL counter was %0d, expected %0d", read_data, expected);
+        $display("*** TC06: Direct read counter is %0d", dut.key2_ctr_reg);
+        error_ctr = error_ctr + 1;
+      end
+    end
+  endtask
+
+  task tc6_write_to_clear_key_counter;
+    begin
+      write_word(ADDR_KEY2_COUNTER, 32'h1);
+    end
+  endtask
+
+  task tc7_write_key_2_as_valid;
+    begin : tc3_write_current_key
+      read_word(ADDR_CTRL);
+      write_word(ADDR_CTRL, read_data | {28'h0, 1'h0, 1'h1, 1'h0, 1'h0});
+    end
+  endtask
+
+  task tc7_verify_key_by_id;
+    begin : tc7_verify_key_by_id
+      reg [4 : 0] i;
+      reg verify_key_by_id_error;
+      verify_key_by_id_error = 0;
+      for (i = 0 ; i < 16 && !verify_key_by_id_error ; i = i + 1)
+      begin
+        dut_key_word = i;
+        dut_get_key_with_id = 32'h1;
+        dut_server_key_id = 32'hcc33;
+        #(1 * CLK_PERIOD);
+        if (dut_key_length != {31'h0, 1'h1})
+        begin
+          verify_key_by_id_error = 1;
+          $display("*** Error verifying key by id length");
+        end
+        if (dut_key_id != 32'hcc33)
+        begin
+          verify_key_by_id_error = 1;
+          $display("*** Error verifying key by id id, id was %h", dut_key_id);
+        end
+        if (dut_key_data != {8'h20 + i, 8'h20 + i, 8'h20 + i, 8'h20 + i})
+        begin
+          verify_key_by_id_error = 1;
+        end
+        dut_get_current_key = 1'h0;
+        #(CLK_PERIOD);
+      end
+      if (verify_key_by_id_error)
+      begin
+        $display("*** Error verifying key by id read");
+        error_ctr = error_ctr + 1;
+      end
+    end
+  endtask
 
   //----------------------------------------------------------------
   // main
@@ -409,14 +666,77 @@ module tb_keymem();
   //----------------------------------------------------------------
   initial
     begin : main
+      $dumpfile("dump.vcd");
+      $dumpvars(0, tb_keymem);
       $display("   -= Testbench for NTS keymem started =-");
       $display("    =====================================");
       $display("");
 
       init_sim();
-      dump_keys();
+      /* TC01 */
+      $display("*** TC01: Writing keys");
+      tc1_static_write_keys();
+      $display("*** TC01: Resetting DUT");
       reset_dut();
-      tc1_write_keys();
+      $display("*** TC01: Verifying reset");
+      verify_reset();
+      /* TC02 */
+      $display("*** TC02: Writing keys");
+      tc1_static_write_keys();
+      $display("*** TC02: Verifying keys");
+      tc2_static_verify_keys_reg();
+      reset_dut();
+      /* TC03 */
+      $display("*** TC03: Writing current key");
+      tc3_write_current_key();
+      $display("*** TC03: Verifying current key");
+      tc3_verify_current_key_reg();
+      reset_dut();
+      /* TC04 */
+      $display("*** TC04: Writing keys");
+      tc1_static_write_keys();
+      $display("*** TC04: Writing current key");
+      tc3_write_current_key();
+      $display("*** TC04: Reading current key");
+      tc4_verify_current_key_read();
+      tc_ctr = tc_ctr + 1;
+      /* TC05 */
+      reset_dut();
+      $display("*** TC05: Writing keys");
+      tc1_static_write_keys();
+      $display("*** TC05: Writing current key as Invalid");
+      tc5_write_current_key_as_invalid();
+      $display("*** TC05: Reading current key");
+      tc5_verify_current_key_read_as_invalid();
+      reset_dut();
+      /* TC06 */
+      $display("*** TC06: Writing keys");
+      tc1_static_write_keys();
+      $display("*** TC06: Writing current key");
+      tc3_write_current_key();
+      $display("*** TC06: Verifying counter is 0");
+      tc6_verify_key_counter(32'd0);
+      $display("*** TC06: Reading current key");
+      tc4_verify_current_key_read();
+      $display("*** TC06: Verifying counter is 1");
+      tc6_verify_key_counter(32'd16);
+      $display("*** TC06: Writing to clear counter");
+      tc6_write_to_clear_key_counter();
+      $display("*** TC06: Verifying counter is 0");
+      tc6_verify_key_counter(32'd0);
+      tc_ctr = tc_ctr + 1;
+      reset_dut();
+      /* TC07 */
+      $display("*** TC07: Writing keys");
+      tc1_static_write_keys();
+      $display("*** TC07: Setting key 2 as valid");
+      tc7_write_key_2_as_valid();
+      $display("*** TC07: Reading key by ID");
+      tc7_verify_key_by_id();
+      tc_ctr = tc_ctr + 1;
+      reset_dut();
+
+      display_test_results();
 
       $display("");
       $display("*** NTS keymem simulation done. ***");

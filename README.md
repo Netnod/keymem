@@ -3,7 +3,7 @@ Key memory module for the NTS engine.
 
 
 ## Status
-Functionally completed. Not debugged. Not ready for use.
+Functionally completed. Functionally verified.
 
 
 ## Introduction

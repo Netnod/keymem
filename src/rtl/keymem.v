@@ -257,7 +257,7 @@ module keymem(
 
       if (areset)
         begin
-          for (i = 0 ; i < 4 ; i = i + 1)
+          for (i = 0 ; i < 16 ; i = i + 1)
             begin
               key0[i] <= 32'h0;
               key1[i] <= 32'h0;
@@ -278,7 +278,7 @@ module keymem(
           key0_length_reg <= 1'h0;
           key1_length_reg <= 1'h0;
           key2_length_reg <= 1'h0;
-          key2_length_reg <= 1'h0;
+          key3_length_reg <= 1'h0;
 
           key0_ctr_reg    <= 32'h0;
           key1_ctr_reg    <= 32'h0;
