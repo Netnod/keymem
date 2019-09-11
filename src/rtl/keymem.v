@@ -289,7 +289,7 @@ module keymem(
           key_valid_reg   <= 1'h0;
           current_key_reg <= 2'h0;
           mux_ctrl_reg    <= 2'h0;
-          ready_reg       <= 1'h0;
+          ready_reg       <= 1'h1;
           keymem_ctrl_reg <= CTRL_IDLE;
         end
       else
