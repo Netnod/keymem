@@ -65,16 +65,12 @@ module tb_keymem();
   localparam CTRL_CURR_HIGH     = 17;
 
   localparam ADDR_KEY0_ID       = 8'h10;
-  localparam ADDR_KEY0_LENGTH   = 8'h11;
 
   localparam ADDR_KEY1_ID       = 8'h12;
-  localparam ADDR_KEY1_LENGTH   = 8'h13;
 
   localparam ADDR_KEY2_ID       = 8'h14;
-  localparam ADDR_KEY2_LENGTH   = 8'h15;
 
   localparam ADDR_KEY3_ID       = 8'h16;
-  localparam ADDR_KEY3_LENGTH   = 8'h17;
 
   localparam ADDR_KEY0_COUNTER  = 8'h30;
   localparam ADDR_KEY1_COUNTER  = 8'h31;
@@ -83,16 +79,16 @@ module tb_keymem();
   localparam ADDR_ERROR_COUNTER = 8'h34;
 
   localparam ADDR_KEY0_START    = 8'h40;
-  localparam ADDR_KEY0_END      = 8'h4f;
+  localparam ADDR_KEY0_END      = 8'h47;
 
   localparam ADDR_KEY1_START    = 8'h50;
-  localparam ADDR_KEY1_END      = 8'h5f;
+  localparam ADDR_KEY1_END      = 8'h57;
 
   localparam ADDR_KEY2_START    = 8'h60;
-  localparam ADDR_KEY2_END      = 8'h6f;
+  localparam ADDR_KEY2_END      = 8'h67;
 
   localparam ADDR_KEY3_START    = 8'h70;
-  localparam ADDR_KEY3_END      = 8'h7f;
+  localparam ADDR_KEY3_END      = 8'h77;
 
 
   //----------------------------------------------------------------
@@ -116,9 +112,8 @@ module tb_keymem();
   reg           dut_get_current_key;
   reg           dut_get_key_with_id;
   reg  [31 : 0] dut_server_key_id;
-  reg  [3 : 0]  dut_key_word;
+  reg  [2 : 0]  dut_key_word;
   wire          dut_key_valid;
-  wire          dut_key_length;
   wire [31 : 0] dut_key_id;
   wire [31 : 0] dut_key_data;
   wire          dut_ready;
@@ -140,7 +135,6 @@ module tb_keymem();
              .server_key_id(dut_server_key_id),
              .key_word(dut_key_word),
              .key_valid(dut_key_valid),
-             .key_length(dut_key_length),
              .key_id(dut_key_id),
              .key_data(dut_key_data),
              .ready(dut_ready)
@@ -276,55 +270,39 @@ module tb_keymem();
       $display("Key status:");
       $display("-----------");
       $display("key0:");
-      $display("length: 0x%01x, valid: 0x%01x, id: 0x%08x",
-               dut.key0_length_reg, dut.key0_valid_reg, dut.key0_id_reg);
+      $display("valid: 0x%01x, id: 0x%08x",
+               dut.key0_valid_reg, dut.key0_id_reg);
       $display("00: 0x%08x, 01: 0x%08x, 02: 0x%08x, 03: 0x%08x",
                dut.key0[0], dut.key0[1], dut.key0[2], dut.key0[3]);
       $display("04: 0x%08x, 05: 0x%08x, 06: 0x%08x, 07: 0x%08x",
                dut.key0[4], dut.key0[5], dut.key0[6], dut.key0[7]);
-      $display("08: 0x%08x, 09: 0x%08x, 0a: 0x%08x, 0b: 0x%08x",
-               dut.key0[8], dut.key0[9], dut.key0[10], dut.key0[11]);
-      $display("0c: 0x%08x, 0d: 0x%08x, 0e: 0x%08x, 0f: 0x%08x",
-               dut.key0[12], dut.key0[13], dut.key0[14], dut.key0[15]);
       $display("");
 
       $display("key1:");
-      $display("length: 0x%01x, valid: 0x%01x, id: 0x%08x",
-               dut.key1_length_reg, dut.key1_valid_reg, dut.key1_id_reg);
+      $display("valid: 0x%01x, id: 0x%08x",
+               dut.key1_valid_reg, dut.key1_id_reg);
       $display("00: 0x%08x, 01: 0x%08x, 02: 0x%08x, 03: 0x%08x",
                dut.key1[0], dut.key1[1], dut.key1[2], dut.key1[3]);
       $display("04: 0x%08x, 05: 0x%08x, 06: 0x%08x, 07: 0x%08x",
                dut.key1[4], dut.key1[5], dut.key1[6], dut.key1[7]);
-      $display("08: 0x%08x, 09: 0x%08x, 0a: 0x%08x, 0b: 0x%08x",
-               dut.key1[8], dut.key1[9], dut.key1[10], dut.key1[11]);
-      $display("0c: 0x%08x, 0d: 0x%08x, 0e: 0x%08x, 0f: 0x%08x",
-               dut.key1[12], dut.key1[13], dut.key1[14], dut.key1[15]);
       $display("");
 
       $display("key2:");
-      $display("length: 0x%01x, valid: 0x%01x, id: 0x%08x",
-               dut.key2_length_reg, dut.key2_valid_reg, dut.key2_id_reg);
+      $display("valid: 0x%01x, id: 0x%08x",
+               dut.key2_valid_reg, dut.key2_id_reg);
       $display("00: 0x%08x, 01: 0x%08x, 02: 0x%08x, 03: 0x%08x",
                dut.key2[0], dut.key2[1], dut.key2[2], dut.key2[3]);
       $display("04: 0x%08x, 05: 0x%08x, 06: 0x%08x, 07: 0x%08x",
                dut.key2[4], dut.key2[5], dut.key2[6], dut.key2[7]);
-      $display("08: 0x%08x, 09: 0x%08x, 0a: 0x%08x, 0b: 0x%08x",
-               dut.key2[8], dut.key2[9], dut.key2[10], dut.key2[11]);
-      $display("0c: 0x%08x, 0d: 0x%08x, 0e: 0x%08x, 0f: 0x%08x",
-               dut.key2[12], dut.key2[13], dut.key2[14], dut.key2[15]);
       $display("");
 
       $display("key3:");
-      $display("length: 0x%01x, valid: 0x%01x, id: 0x%08x",
-               dut.key3_length_reg, dut.key3_valid_reg, dut.key3_id_reg);
+      $display("valid: 0x%01x, id: 0x%08x",
+               dut.key3_valid_reg, dut.key3_id_reg);
       $display("00: 0x%08x, 01: 0x%08x, 02: 0x%08x, 03: 0x%08x",
                dut.key3[0], dut.key3[1], dut.key3[2], dut.key3[3]);
       $display("04: 0x%08x, 05: 0x%08x, 06: 0x%08x, 07: 0x%08x",
                dut.key3[4], dut.key3[5], dut.key3[6], dut.key3[7]);
-      $display("08: 0x%08x, 09: 0x%08x, 0a: 0x%08x, 0b: 0x%08x",
-               dut.key3[8], dut.key3[9], dut.key3[10], dut.key3[11]);
-      $display("0c: 0x%08x, 0d: 0x%08x, 0e: 0x%08x, 0f: 0x%08x",
-               dut.key3[12], dut.key3[13], dut.key3[14], dut.key3[15]);
       $display("");
     end
   endtask // read_word
@@ -352,7 +330,7 @@ module tb_keymem();
       dut_get_current_key = 1'h0;
       dut_get_key_with_id = 1'h0;
       dut_server_key_id   = 32'h0;
-      dut_key_word        = 4'h0;
+      dut_key_word        = 3'h0;
       $display("*** init_sim() complete.");
     end
   endtask // init_sim
@@ -407,10 +385,10 @@ module tb_keymem();
     end
   endtask // read_word
 
-  task write_key(input [11 : 0]  address, input [0 : 511] key);
+  task write_key(input [11 : 0]  address, input [0 : 255] key);
     begin : write_key
       integer i;
-      for (i = 4'h0 ; i <= 4'hf ; i = i + 1'h1)
+      for (i = 3'h0 ; i <= 3'hf ; i = i + 1'h1)
       begin
         //$display("*** Writing 0x%08x from 0x%02x at iteration %02d.", key[32*i +: 32], (address + i), i);
         write_word((address + i), key[32*i +: 32]);
@@ -427,32 +405,20 @@ module tb_keymem();
     begin : tc1_static_write_keys
       write_key(ADDR_KEY0_START, {
         {4{8'h0}}, {4{8'h01}}, {4{8'h02}}, {4{8'h03}},
-        {4{8'h04}}, {4{8'h05}}, {4{8'h06}}, {4{8'h07}},
-        {4{8'h08}}, {4{8'h09}}, {4{8'h0a}}, {4{8'h0b}},
-        {4{8'h0c}}, {4{8'h0d}}, {4{8'h0e}}, {4{8'h0f}}});
+        {4{8'h04}}, {4{8'h05}}, {4{8'h06}}, {4{8'h07}}});
       write_word(ADDR_KEY0_ID, 32'haa11);
-      write_word(ADDR_KEY0_LENGTH, {31'h0, 1'h1});
       write_key(ADDR_KEY1_START, {
         {4{8'h10}}, {4{8'h11}}, {4{8'h12}}, {4{8'h13}},
-        {4{8'h14}}, {4{8'h15}}, {4{8'h16}}, {4{8'h17}},
-        {4{8'h18}}, {4{8'h19}}, {4{8'h1a}}, {4{8'h1b}},
-        {4{8'h1c}}, {4{8'h1d}}, {4{8'h1e}}, {4{8'h1f}}});
+        {4{8'h14}}, {4{8'h15}}, {4{8'h16}}, {4{8'h17}}});
       write_word(ADDR_KEY1_ID, 32'hbb22);
-      write_word(ADDR_KEY1_LENGTH, {31'h0, 1'h1});
       write_key(ADDR_KEY2_START, {
         {4{8'h20}}, {4{8'h21}}, {4{8'h22}}, {4{8'h23}},
-        {4{8'h24}}, {4{8'h25}}, {4{8'h26}}, {4{8'h27}},
-        {4{8'h28}}, {4{8'h29}}, {4{8'h2a}}, {4{8'h2b}},
-        {4{8'h2c}}, {4{8'h2d}}, {4{8'h2e}}, {4{8'h2f}}});
+        {4{8'h24}}, {4{8'h25}}, {4{8'h26}}, {4{8'h27}}});
       write_word(ADDR_KEY2_ID, 32'hcc33);
-      write_word(ADDR_KEY2_LENGTH, {31'h0, 1'h1});
       write_key(ADDR_KEY3_START, {
         {4{8'h30}}, {4{8'h31}}, {4{8'h32}}, {4{8'h33}},
-        {4{8'h34}}, {4{8'h35}}, {4{8'h36}}, {4{8'h37}},
-        {4{8'h38}}, {4{8'h39}}, {4{8'h3a}}, {4{8'h3b}},
-        {4{8'h3c}}, {4{8'h3d}}, {4{8'h3e}}, {4{8'h3f}}});
+        {4{8'h34}}, {4{8'h35}}, {4{8'h36}}, {4{8'h37}}});
       write_word(ADDR_KEY3_ID, 32'hdd44);
-      write_word(ADDR_KEY3_LENGTH, {31'h0, 1'h1});
     end
   endtask
 
@@ -462,7 +428,7 @@ module tb_keymem();
       reg verify_static_keys_error;
       verify_static_keys_error = 0;
 
-      for (i = 8'h0 ; i < 8'h10 && !verify_static_keys_error ; i = i + 1'h1)
+      for (i = 8'h0 ; i < 8'h08 && !verify_static_keys_error ; i = i + 1'h1)
       begin
         read_word((ADDR_KEY0_START + i));
         if (read_data != {i, i, i, i})
@@ -472,7 +438,7 @@ module tb_keymem();
         end
       end
 
-      for (i = 8'h0 ; i < 8'h10 && !verify_static_keys_error ; i = i + 1'h1)
+      for (i = 8'h0 ; i < 8'h08 && !verify_static_keys_error ; i = i + 1'h1)
       begin
         read_word((ADDR_KEY1_START + i));
         if (read_data != {8'h10 + i, 8'h10 + i, 8'h10 + i, 8'h10 + i})
@@ -482,7 +448,7 @@ module tb_keymem();
         end
       end
 
-      for (i = 8'h0 ; i < 8'h10 && !verify_static_keys_error ; i = i + 1'h1)
+      for (i = 8'h0 ; i < 8'h08 && !verify_static_keys_error ; i = i + 1'h1)
       begin
         read_word((ADDR_KEY2_START + i));
         if (read_data != {8'h20 + i, 8'h20 + i, 8'h20 + i, 8'h20 + i})
@@ -492,7 +458,7 @@ module tb_keymem();
         end
       end
 
-      for (i = 8'h0 ; i < 8'h10 && !verify_static_keys_error ; i = i + 1'h1)
+      for (i = 8'h0 ; i < 8'h08 && !verify_static_keys_error ; i = i + 1'h1)
       begin
         read_word((ADDR_KEY3_START + i));
         if (read_data != {8'h30 + i, 8'h30 + i, 8'h30 + i, 8'h30 + i})
@@ -533,18 +499,14 @@ module tb_keymem();
 
   task tc4_verify_current_key_read;
     begin : tc4_verify_current_key_read
-      reg [4 : 0] i;
+      reg [3 : 0] i;
       reg verify_current_key_read_error;
       verify_current_key_read_error = 0;
-      for (i = 0 ; i < 16 && !verify_current_key_read_error ; i = i + 1)
+      for (i = 0 ; i < 8 && !verify_current_key_read_error ; i = i + 1)
       begin
         dut_key_word = i;
         dut_get_current_key = 1'h1;
         #(1 * CLK_PERIOD);
-        if (dut_key_length != {31'h0, 1'h1})
-        begin
-          verify_current_key_read_error = 1;
-        end
         if (dut_key_id != 32'hcc33)
         begin
           verify_current_key_read_error = 1;
@@ -574,10 +536,10 @@ module tb_keymem();
 
   task tc5_verify_current_key_read_as_invalid;
     begin : tc5_verify_current_key_read_as_invalid
-      reg [4 : 0] i;
+      reg [3 : 0] i;
       reg verify_current_key_read_as_invalid_error;
       verify_current_key_read_as_invalid_error = 0;
-      for (i = 0 ; i < 16 && !verify_current_key_read_as_invalid_error ; i = i + 1)
+      for (i = 0 ; i < 8 && !verify_current_key_read_as_invalid_error ; i = i + 1)
       begin
         dut_key_word <= i;
         dut_get_current_key <= 1'h1;
@@ -617,7 +579,7 @@ module tb_keymem();
   endtask
 
   task tc7_write_key_2_as_valid;
-    begin : tc3_write_current_key
+    begin : tc7_write_key_2_as_valid
       read_word(ADDR_CTRL);
       write_word(ADDR_CTRL, read_data | {28'h0, 1'h0, 1'h1, 1'h0, 1'h0});
     end
@@ -625,20 +587,15 @@ module tb_keymem();
 
   task tc7_verify_key_by_id;
     begin : tc7_verify_key_by_id
-      reg [4 : 0] i;
+      reg [3 : 0] i;
       reg verify_key_by_id_error;
       verify_key_by_id_error = 0;
-      for (i = 0 ; i < 16 && !verify_key_by_id_error ; i = i + 1)
+      for (i = 0 ; i < 8 && !verify_key_by_id_error ; i = i + 1)
       begin
         dut_key_word = i;
         dut_get_key_with_id = 32'h1;
         dut_server_key_id = 32'hcc33;
         #(1 * CLK_PERIOD);
-        if (dut_key_length != {31'h0, 1'h1})
-        begin
-          verify_key_by_id_error = 1;
-          $display("*** Error verifying key by id length");
-        end
         if (dut_key_id != 32'hcc33)
         begin
           verify_key_by_id_error = 1;
@@ -719,7 +676,7 @@ module tb_keymem();
       $display("*** TC06: Reading current key");
       tc4_verify_current_key_read();
       $display("*** TC06: Verifying counter is 1");
-      tc6_verify_key_counter(32'd16);
+      tc6_verify_key_counter(32'd8);
       $display("*** TC06: Writing to clear counter");
       tc6_write_to_clear_key_counter();
       $display("*** TC06: Verifying counter is 0");
