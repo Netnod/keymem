@@ -37,8 +37,8 @@
 #
 #===================================================================
 
-KEYMEM_SRC=../src/rtl/keymem.v
-TB_KEYMEM_SRC =../src/tb/tb_keymem.v
+KEYMEM_SRC=../src/rtl/nts_keymem.v
+TB_KEYMEM_SRC =../src/tb/tb_nts_keymem.v
 
 CC = iverilog
 CC_FLAGS = -Wall
