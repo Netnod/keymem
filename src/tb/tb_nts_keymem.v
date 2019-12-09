@@ -41,7 +41,7 @@
 //------------------------------------------------------------------
 // Test module.
 //------------------------------------------------------------------
-module tb_keymem();
+module tb_nts_keymem();
 
   //----------------------------------------------------------------
   // Internal constant and parameter definitions.
@@ -122,7 +122,7 @@ module tb_keymem();
   //----------------------------------------------------------------
   // Device Under Test.
   //----------------------------------------------------------------
-  keymem dut(
+  nts_keymem dut(
              .clk(tb_clk),
              .areset(tb_areset),
              .cs(dut_cs),
@@ -624,7 +624,7 @@ module tb_keymem();
   initial
     begin : main
       $dumpfile("dump.vcd");
-      $dumpvars(0, tb_keymem);
+      $dumpvars(0, tb_nts_keymem);
       $display("   -= Testbench for NTS keymem started =-");
       $display("    =====================================");
       $display("");

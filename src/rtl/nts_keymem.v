@@ -38,7 +38,7 @@
 //
 //======================================================================
 
-module keymem(
+module nts_keymem(
               input wire           clk,
               input wire           areset,
 
