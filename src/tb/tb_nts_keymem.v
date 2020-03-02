@@ -72,11 +72,16 @@ module tb_nts_keymem();
 
   localparam ADDR_KEY3_ID       = 8'h16;
 
-  localparam ADDR_KEY0_COUNTER  = 8'h30;
-  localparam ADDR_KEY1_COUNTER  = 8'h31;
-  localparam ADDR_KEY2_COUNTER  = 8'h32;
-  localparam ADDR_KEY3_COUNTER  = 8'h33;
-  localparam ADDR_ERROR_COUNTER = 8'h34;
+  localparam ADDR_KEY0_COUNTER_MSB  = 8'h30;
+  localparam ADDR_KEY0_COUNTER_LSB  = 8'h31;
+  localparam ADDR_KEY1_COUNTER_MSB  = 8'h32;
+  localparam ADDR_KEY1_COUNTER_LSB  = 8'h33;
+  localparam ADDR_KEY2_COUNTER_MSB  = 8'h34;
+  localparam ADDR_KEY2_COUNTER_LSB  = 8'h35;
+  localparam ADDR_KEY3_COUNTER_MSB  = 8'h36;
+  localparam ADDR_KEY3_COUNTER_LSB  = 8'h37;
+  localparam ADDR_ERROR_COUNTER_MSB = 8'h38;
+  localparam ADDR_ERROR_COUNTER_LSB = 8'h39;
 
   localparam ADDR_KEY0_START    = 8'h40;
   localparam ADDR_KEY0_END      = 8'h47;
@@ -388,7 +393,7 @@ module tb_nts_keymem();
   task write_key(input [11 : 0]  address, input [0 : 255] key);
     begin : write_key
       integer i;
-      for (i = 3'h0 ; i <= 3'hf ; i = i + 1'h1)
+      for (i = 3'h0 ; i <= 3'h7 ; i = i + 1'h1)
       begin
         //$display("*** Writing 0x%08x from 0x%02x at iteration %02d.", key[32*i +: 32], (address + i), i);
         write_word((address + i), key[32*i +: 32]);
@@ -560,10 +565,15 @@ module tb_nts_keymem();
     end
   endtask
 
-  task tc6_verify_key_counter(input [31 : 0]  expected);
+  task tc6_verify_key_counter(input [63 : 0]  expected);
     begin : write_key
-      read_word(ADDR_KEY2_COUNTER);
-      if (read_data != expected)
+      reg [63:0] counter;
+      read_word(ADDR_KEY2_COUNTER_MSB);
+      counter[63:32] = read_data;
+      read_word(ADDR_KEY2_COUNTER_LSB);
+      counter[31:0] = read_data;
+
+      if (counter !== expected)
       begin
         $display("*** TC06: FAIL counter was %0d, expected %0d", read_data, expected);
         $display("*** TC06: Direct read counter is %0d", dut.key2_ctr_reg);
@@ -574,7 +584,7 @@ module tb_nts_keymem();
 
   task tc6_write_to_clear_key_counter;
     begin
-      write_word(ADDR_KEY2_COUNTER, 32'h1);
+      write_word(ADDR_KEY2_COUNTER_MSB, 32'h1);
     end
   endtask
 

@@ -84,11 +84,16 @@ module nts_keymem(
 
   localparam ADDR_KEY3_ID       = 8'h16;
 
-  localparam ADDR_KEY0_COUNTER  = 8'h30;
-  localparam ADDR_KEY1_COUNTER  = 8'h31;
-  localparam ADDR_KEY2_COUNTER  = 8'h32;
-  localparam ADDR_KEY3_COUNTER  = 8'h33;
-  localparam ADDR_ERROR_COUNTER = 8'h34;
+  localparam ADDR_KEY0_COUNTER_MSB  = 8'h30;
+  localparam ADDR_KEY0_COUNTER_LSB  = 8'h31;
+  localparam ADDR_KEY1_COUNTER_MSB  = 8'h32;
+  localparam ADDR_KEY1_COUNTER_LSB  = 8'h33;
+  localparam ADDR_KEY2_COUNTER_MSB  = 8'h34;
+  localparam ADDR_KEY2_COUNTER_LSB  = 8'h35;
+  localparam ADDR_KEY3_COUNTER_MSB  = 8'h36;
+  localparam ADDR_KEY3_COUNTER_LSB  = 8'h37;
+  localparam ADDR_ERROR_COUNTER_MSB = 8'h38;
+  localparam ADDR_ERROR_COUNTER_LSB = 8'h39;
 
   localparam ADDR_KEY0_START    = 8'h40;
   localparam ADDR_KEY0_END      = 8'h47;
@@ -104,7 +109,7 @@ module nts_keymem(
 
   localparam CORE_NAME0   = 32'h6b65795f; // "key_"
   localparam CORE_NAME1   = 32'h6d656d20; // "mem "
-  localparam CORE_VERSION = 32'h302e3130; // "0.10"
+  localparam CORE_VERSION = 32'h302e3131; // "0.11"
 
   localparam CTRL_IDLE = 1'h0;
   localparam CTRL_DONE = 1'h1;
@@ -126,12 +131,14 @@ module nts_keymem(
 
   reg          key0_valid_reg;
 
-  reg [31 : 0] key0_ctr_reg;
-  reg [31 : 0] key0_ctr_new;
+  reg [63 : 0] key0_ctr_reg;
+  reg [63 : 0] key0_ctr_new;
   reg          key0_ctr_rst;
   reg          key0_ctr_inc;
   reg          key0_ctr_we;
 
+  reg [31 : 0] key0_ctr_lsb_reg;
+  reg          key0_ctr_lsb_we;
 
   reg [31 : 0] key1 [0 : 7];
   reg          key1_we;
@@ -141,12 +148,14 @@ module nts_keymem(
 
   reg          key1_valid_reg;
 
-  reg [31 : 0] key1_ctr_reg;
-  reg [31 : 0] key1_ctr_new;
+  reg [63 : 0] key1_ctr_reg;
+  reg [63 : 0] key1_ctr_new;
   reg          key1_ctr_rst;
   reg          key1_ctr_inc;
   reg          key1_ctr_we;
 
+  reg [31 : 0] key1_ctr_lsb_reg;
+  reg          key1_ctr_lsb_we;
 
   reg [31 : 0] key2 [0 : 7];
   reg          key2_we;
@@ -156,12 +165,14 @@ module nts_keymem(
 
   reg          key2_valid_reg;
 
-  reg [31 : 0] key2_ctr_reg;
-  reg [31 : 0] key2_ctr_new;
+  reg [63 : 0] key2_ctr_reg;
+  reg [63 : 0] key2_ctr_new;
   reg          key2_ctr_rst;
   reg          key2_ctr_inc;
   reg          key2_ctr_we;
 
+  reg [31 : 0] key2_ctr_lsb_reg;
+  reg          key2_ctr_lsb_we;
 
   reg [31 : 0] key3 [0 : 7];
   reg          key3_we;
@@ -171,17 +182,23 @@ module nts_keymem(
 
   reg          key3_valid_reg;
 
-  reg [31 : 0] key3_ctr_reg;
-  reg [31 : 0] key3_ctr_new;
+  reg [63 : 0] key3_ctr_reg;
+  reg [63 : 0] key3_ctr_new;
   reg          key3_ctr_rst;
   reg          key3_ctr_inc;
   reg          key3_ctr_we;
 
-  reg [31 : 0] error_ctr_reg;
-  reg [31 : 0] error_ctr_new;
+  reg [31 : 0] key3_ctr_lsb_reg;
+  reg          key3_ctr_lsb_we;
+
+  reg [63 : 0] error_ctr_reg;
+  reg [63 : 0] error_ctr_new;
   reg          error_ctr_rst;
   reg          error_ctr_inc;
   reg          error_ctr_we;
+
+  reg [31 : 0] error_ctr_lsb_reg;
+  reg          error_ctr_lsb_we;
 
   reg          key_valid_reg;
   reg          key_valid_new;
@@ -256,12 +273,17 @@ module nts_keymem(
           key2_valid_reg  <= 1'h0;
           key3_valid_reg  <= 1'h0;
 
-          key0_ctr_reg    <= 32'h0;
-          key1_ctr_reg    <= 32'h0;
-          key2_ctr_reg    <= 32'h0;
-          key3_ctr_reg    <= 32'h0;
+          key0_ctr_reg      <= 64'h0;
+          key0_ctr_lsb_reg  <= 32'h0;
+          key1_ctr_reg      <= 64'h0;
+          key1_ctr_lsb_reg  <= 32'h0;
+          key2_ctr_reg      <= 64'h0;
+          key2_ctr_lsb_reg  <= 32'h0;
+          key3_ctr_reg      <= 64'h0;
+          key3_ctr_lsb_reg  <= 32'h0;
+          error_ctr_reg     <= 64'h0;
+          error_ctr_lsb_reg <= 32'h0;
 
-          error_ctr_reg   <= 32'h0;
           key_valid_reg   <= 1'h0;
           current_key_reg <= 2'h0;
           mux_ctrl_reg    <= 2'h0;
@@ -279,6 +301,9 @@ module nts_keymem(
           if (key0_ctr_we)
             key0_ctr_reg <= key0_ctr_new;
 
+          if (key0_ctr_lsb_we)
+            key0_ctr_lsb_reg <= key0_ctr_reg[31:0];
+
 
           if (key1_we)
             key1[address[2 : 0]] <= write_data;
@@ -288,6 +313,9 @@ module nts_keymem(
 
           if (key1_ctr_we)
             key1_ctr_reg <= key1_ctr_new;
+
+          if (key1_ctr_lsb_we)
+            key1_ctr_lsb_reg <= key1_ctr_reg[31:0];
 
 
           if (key2_we)
@@ -299,6 +327,9 @@ module nts_keymem(
           if (key2_ctr_we)
             key2_ctr_reg <= key2_ctr_new;
 
+          if (key2_ctr_lsb_we)
+            key2_ctr_lsb_reg <= key2_ctr_reg[31:0];
+
 
           if (key3_we)
             key3[address[2 : 0]] <= write_data;
@@ -309,9 +340,15 @@ module nts_keymem(
           if (key3_ctr_we)
             key3_ctr_reg <= key3_ctr_new;
 
+          if (key3_ctr_lsb_we)
+            key3_ctr_lsb_reg <= key3_ctr_reg[31:0];
+
 
           if (error_ctr_we)
             error_ctr_reg <= error_ctr_new;
+
+          if (error_ctr_lsb_we)
+            error_ctr_lsb_reg <= error_ctr_reg[31:0];
 
           if (key_ctrl_we)
             begin
@@ -546,21 +583,21 @@ module nts_keymem(
   //----------------------------------------------------------------
   always @*
     begin : counters
-      key0_ctr_new  = 32'h0;
+      key0_ctr_new  = 64'h0;
       key0_ctr_we   = 1'h0;
-      key1_ctr_new  = 32'h0;
+      key1_ctr_new  = 64'h0;
       key1_ctr_we   = 1'h0;
-      key2_ctr_new  = 32'h0;
+      key2_ctr_new  = 64'h0;
       key2_ctr_we   = 1'h0;
-      key3_ctr_new  = 32'h0;
+      key3_ctr_new  = 64'h0;
       key3_ctr_we   = 1'h0;
-      error_ctr_new = 32'h0;
+      error_ctr_new = 64'h0;
       error_ctr_we  = 1'h0;
 
 
       if (key0_ctr_rst)
         begin
-          key0_ctr_new = 32'h0;
+          key0_ctr_new = 64'h0;
           key0_ctr_we  = 1'h1;
         end
 
@@ -572,7 +609,7 @@ module nts_keymem(
 
       if (key1_ctr_rst)
         begin
-          key1_ctr_new = 32'h0;
+          key1_ctr_new = 64'h0;
           key1_ctr_we  = 1'h1;
         end
 
@@ -584,7 +621,7 @@ module nts_keymem(
 
       if (key2_ctr_rst)
         begin
-          key2_ctr_new = 32'h0;
+          key2_ctr_new = 64'h0;
           key2_ctr_we  = 1'h1;
         end
 
@@ -596,7 +633,7 @@ module nts_keymem(
 
       if (key3_ctr_rst)
         begin
-          key3_ctr_new = 32'h0;
+          key3_ctr_new = 64'h0;
           key3_ctr_we  = 1'h1;
         end
 
@@ -608,7 +645,7 @@ module nts_keymem(
 
       if (error_ctr_rst)
         begin
-          error_ctr_new = 32'h0;
+          error_ctr_new = 64'h0;
           error_ctr_we  = 1'h1;
         end
 
@@ -625,37 +662,42 @@ module nts_keymem(
   //----------------------------------------------------------------
   always @*
     begin : api
-      key_ctrl_we    = 1'h0;
-      key0_we        = 1'h0;
-      key0_id_we     = 1'h0;
-      key0_ctr_rst   = 1'h0;
-      key1_we        = 1'h0;
-      key1_id_we     = 1'h0;
-      key1_ctr_rst   = 1'h0;
-      key2_we        = 1'h0;
-      key2_id_we     = 1'h0;
-      key2_ctr_rst   = 1'h0;
-      key3_we        = 1'h0;
-      key3_id_we     = 1'h0;
-      key3_ctr_rst   = 1'h0;
-      error_ctr_rst  = 1'h0;
-      tmp_read_data  = 32'h0;
+      key_ctrl_we      = 1'h0;
+      key0_we          = 1'h0;
+      key0_ctr_lsb_we  = 1'h0;
+      key0_ctr_rst     = 1'h0;
+      key0_id_we       = 1'h0;
+      key1_we          = 1'h0;
+      key1_ctr_lsb_we  = 1'h0;
+      key1_ctr_rst     = 1'h0;
+      key1_id_we       = 1'h0;
+      key2_we          = 1'h0;
+      key2_ctr_lsb_we  = 1'h0;
+      key2_ctr_rst     = 1'h0;
+      key2_id_we       = 1'h0;
+      key3_we          = 1'h0;
+      key3_ctr_lsb_we  = 1'h0;
+      key3_ctr_rst     = 1'h0;
+      key3_id_we       = 1'h0;
+      error_ctr_lsb_we = 1'h0;
+      error_ctr_rst    = 1'h0;
+      tmp_read_data    = 32'h0;
 
       if (cs)
         begin
           if (we)
             begin
               case (address)
-                ADDR_CTRL:          key_ctrl_we    = 1'h1;
-                ADDR_KEY0_ID:       key0_id_we     = 1'h1;
-                ADDR_KEY1_ID:       key1_id_we     = 1'h1;
-                ADDR_KEY2_ID:       key2_id_we     = 1'h1;
-                ADDR_KEY3_ID:       key3_id_we     = 1'h1;
-                ADDR_KEY0_COUNTER:  key0_ctr_rst   = 1'h1;
-                ADDR_KEY1_COUNTER:  key1_ctr_rst   = 1'h1;
-                ADDR_KEY2_COUNTER:  key2_ctr_rst   = 1'h1;
-                ADDR_KEY3_COUNTER:  key3_ctr_rst   = 1'h1;
-                ADDR_ERROR_COUNTER: error_ctr_rst  = 1'h1;
+                ADDR_CTRL:              key_ctrl_we    = 1'h1;
+                ADDR_KEY0_ID:           key0_id_we     = 1'h1;
+                ADDR_KEY1_ID:           key1_id_we     = 1'h1;
+                ADDR_KEY2_ID:           key2_id_we     = 1'h1;
+                ADDR_KEY3_ID:           key3_id_we     = 1'h1;
+                ADDR_KEY0_COUNTER_MSB:  key0_ctr_rst   = 1'h1;
+                ADDR_KEY1_COUNTER_MSB:  key1_ctr_rst   = 1'h1;
+                ADDR_KEY2_COUNTER_MSB:  key2_ctr_rst   = 1'h1;
+                ADDR_KEY3_COUNTER_MSB:  key3_ctr_rst   = 1'h1;
+                ADDR_ERROR_COUNTER_MSB: error_ctr_rst  = 1'h1;
                 default:
                   begin
                   end
@@ -692,11 +734,40 @@ module nts_keymem(
                 ADDR_KEY2_ID:       tmp_read_data = key2_id_reg;
                 ADDR_KEY3_ID:       tmp_read_data = key3_id_reg;
 
-                ADDR_KEY0_COUNTER:  tmp_read_data = key0_ctr_reg;
-                ADDR_KEY1_COUNTER:  tmp_read_data = key1_ctr_reg;
-                ADDR_KEY2_COUNTER:  tmp_read_data = key2_ctr_reg;
-                ADDR_KEY3_COUNTER:  tmp_read_data = key3_ctr_reg;
-                ADDR_ERROR_COUNTER: tmp_read_data = error_ctr_reg;
+                ADDR_KEY0_COUNTER_MSB:
+                  begin
+                    tmp_read_data = key0_ctr_reg[63:32];
+                    key0_ctr_lsb_we = 1'b1;
+                  end
+                ADDR_KEY0_COUNTER_LSB: tmp_read_data = key0_ctr_lsb_reg;
+
+                ADDR_KEY1_COUNTER_MSB:
+                  begin
+                    tmp_read_data = key1_ctr_reg[63:32];
+                    key1_ctr_lsb_we = 1'b1;
+                  end
+                ADDR_KEY1_COUNTER_LSB: tmp_read_data = key1_ctr_lsb_reg;
+
+                ADDR_KEY2_COUNTER_MSB:
+                  begin
+                    tmp_read_data = key2_ctr_reg[63:32];
+                    key2_ctr_lsb_we = 1'b1;
+                  end
+                ADDR_KEY2_COUNTER_LSB: tmp_read_data = key2_ctr_lsb_reg;
+
+                ADDR_KEY3_COUNTER_MSB:
+                  begin
+                    tmp_read_data = key3_ctr_reg[63:32];
+                    key3_ctr_lsb_we = 1'b1;
+                  end
+                ADDR_KEY3_COUNTER_LSB: tmp_read_data = key3_ctr_lsb_reg;
+
+                ADDR_ERROR_COUNTER_MSB:
+                  begin
+                    tmp_read_data = error_ctr_reg[63:32];
+                    error_ctr_lsb_we = 1'b1;
+                  end
+                ADDR_ERROR_COUNTER_LSB: tmp_read_data = error_ctr_lsb_reg;
 
                 default:
                   begin
