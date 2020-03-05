@@ -1,7 +1,7 @@
 //======================================================================
 //
-// keymem.v
-// --------
+// nts_keymem.v
+// ------------
 // key memory for the NTS engine. Supports four separate keys,
 // with key usage counters.
 //
@@ -113,11 +113,6 @@ module nts_keymem(
 
   localparam CTRL_IDLE = 1'h0;
   localparam CTRL_DONE = 1'h1;
-
-  localparam KW0 = ADDR_KEY0_END - ADDR_KEY0_START;
-  localparam KW1 = ADDR_KEY1_END - ADDR_KEY1_START;
-  localparam KW2 = ADDR_KEY2_END - ADDR_KEY2_START;
-  localparam KW3 = ADDR_KEY3_END - ADDR_KEY3_START;
 
 
   //----------------------------------------------------------------
@@ -840,8 +835,8 @@ module nts_keymem(
       endcase // case (keymem_ctrl_reg)
     end // block: keymem_ctrl
 
-endmodule // keymem
+endmodule // nts_keymem
 
 //======================================================================
-// EOF keymem.v
+// EOF nts_keymem.v
 //======================================================================

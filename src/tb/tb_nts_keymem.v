@@ -1,7 +1,7 @@
 //======================================================================
 //
-// tb_keymem.v
-// -----------
+// tb_nt_keymem.v
+// ---------------
 // Testbench for NTS keymem.
 //
 //
@@ -709,8 +709,8 @@ module tb_nts_keymem();
       $display("*** NTS keymem simulation done. ***");
       $finish;
     end // main
-endmodule // tb_keymem
+endmodule // tb_nts_keymem
 
 //======================================================================
-// EOF tb_keymem.v
+// EOF tb_nts_keymem.v
 //======================================================================
