@@ -576,79 +576,46 @@ module nts_keymem(
   //----------------------------------------------------------------
   // counters
   //----------------------------------------------------------------
+
+  task counter (
+    input         rst,
+    input         inc,
+    input  [63:0] counter_reg,
+    output        counter_we,
+    output [63:0] counter_new
+  );
+  begin
+    counter_we  =  1'b0;
+    counter_new = 64'h0;
+
+    if (rst)
+      begin
+        counter_we  = 1'h1;
+        counter_new = 64'h0;
+      end
+
+    if (inc)
+      begin
+        if (counter_reg[31:0] == 32'hffff_ffff) begin
+          counter_we         = 1'h1;
+          counter_new[31:0]  = counter_reg[31:0] + 1;
+          counter_new[63:32] = counter_reg[63:32] + 1; //inc msb
+        end else begin
+          counter_we         = 1'h1;
+          counter_new[31:0]  = counter_reg[31:0] + 1;
+          counter_new[63:32] = counter_reg[63:32]; //dont inc msb
+        end
+      end
+  end
+  endtask
+
   always @*
     begin : counters
-      key0_ctr_new  = 64'h0;
-      key0_ctr_we   = 1'h0;
-      key1_ctr_new  = 64'h0;
-      key1_ctr_we   = 1'h0;
-      key2_ctr_new  = 64'h0;
-      key2_ctr_we   = 1'h0;
-      key3_ctr_new  = 64'h0;
-      key3_ctr_we   = 1'h0;
-      error_ctr_new = 64'h0;
-      error_ctr_we  = 1'h0;
-
-
-      if (key0_ctr_rst)
-        begin
-          key0_ctr_new = 64'h0;
-          key0_ctr_we  = 1'h1;
-        end
-
-      if (key0_ctr_inc)
-        begin
-          key0_ctr_new = key0_ctr_reg + 1'h1;
-          key0_ctr_we  = 1'h1;
-        end
-
-      if (key1_ctr_rst)
-        begin
-          key1_ctr_new = 64'h0;
-          key1_ctr_we  = 1'h1;
-        end
-
-      if (key1_ctr_inc)
-        begin
-          key1_ctr_new = key1_ctr_reg + 1'h1;
-          key1_ctr_we  = 1'h1;
-        end
-
-      if (key2_ctr_rst)
-        begin
-          key2_ctr_new = 64'h0;
-          key2_ctr_we  = 1'h1;
-        end
-
-      if (key2_ctr_inc)
-        begin
-          key2_ctr_new = key2_ctr_reg + 1'h1;
-          key2_ctr_we  = 1'h1;
-        end
-
-      if (key3_ctr_rst)
-        begin
-          key3_ctr_new = 64'h0;
-          key3_ctr_we  = 1'h1;
-        end
-
-      if (key3_ctr_inc)
-        begin
-          key3_ctr_new = key3_ctr_reg + 1'h1;
-          key3_ctr_we  = 1'h1;
-        end
-
-      if (error_ctr_rst)
-        begin
-          error_ctr_new = 64'h0;
-          error_ctr_we  = 1'h1;
-        end
-
-      if (error_ctr_inc)
-        begin
-          error_ctr_new = error_ctr_reg + 1'h1;
-          error_ctr_we  = 1'h1;
-        end
+      counter( key0_ctr_rst, key0_ctr_inc, key0_ctr_reg, key0_ctr_we, key0_ctr_new );
+      counter( key1_ctr_rst, key1_ctr_inc, key1_ctr_reg, key1_ctr_we, key1_ctr_new );
+      counter( key2_ctr_rst, key2_ctr_inc, key2_ctr_reg, key2_ctr_we, key2_ctr_new );
+      counter( key3_ctr_rst, key3_ctr_inc, key3_ctr_reg, key3_ctr_we, key3_ctr_new );
+      counter( error_ctr_rst, error_ctr_inc, error_ctr_reg, error_ctr_we, error_ctr_new) ;
     end
 
 
