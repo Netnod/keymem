@@ -37,8 +37,11 @@
 #
 #===================================================================
 
-KEYMEM_SRC=../src/rtl/nts_keymem.v
-TB_KEYMEM_SRC =../src/tb/tb_nts_keymem.v
+NTS_KEYMEM_SRC=../src/rtl/nts_keymem.v
+TB_NTS_KEYMEM_SRC =../src/tb/tb_nts_keymem.v
+
+NTP_AUTH_KEYMEM_SRC=../src/rtl/ntp_auth_keymem.v
+TB_NTP_AUTH_KEYMEM_SRC =../src/tb/tb_ntp_auth_keymem.v
 
 CC = iverilog
 CC_FLAGS = -Wall
@@ -47,19 +50,25 @@ LINT = verilator
 LINT_FLAGS = +1364-2001ext+ --lint-only  -Wall -Wno-fatal -Wno-DECLFILENAME
 
 
-all: keymem.sim
+all: keymem.sim keymem-auth.sim
+
+keymem.sim:  $(TB_NTS_KEYMEM_SRC) $(NTS_KEYMEM_SRC)
+	$(CC) $(CC_FLAGS) -o keymem.sim $(TB_NTS_KEYMEM_SRC) $(NTS_KEYMEM_SRC)
 
 
-keymem.sim:  $(TB_KEYMEM_SRC) $(KEYMEM_SRC)
-	$(CC) $(CC_FLAGS) -o keymem.sim $(TB_KEYMEM_SRC) $(KEYMEM_SRC)
-
+keymem-auth.sim:  $(TB_NTP_AUTH_KEYMEM_SRC) $(NTP_AUTH_KEYMEM_SRC)
+	$(CC) $(CC_FLAGS) -o keymem-auth.sim $(TB_NTP_AUTH_KEYMEM_SRC) $(NTP_AUTH_KEYMEM_SRC)
 
 sim-keymem: keymem.sim
 	./keymem.sim
 
+sim-keymem-auth: keymem-auth.sim
+	./keymem-auth.sim
 
-lint:  $(KEYMEM_SRC)
-	$(LINT) $(LINT_FLAGS) $(KEYMEM_SRC)
+
+lint: $(NTS_KEYMEM_SRC) $(NTP_AUTH_KEYMEM_SRC)
+	$(LINT) $(LINT_FLAGS) $(NTS_KEYMEM_SRC)
+	$(LINT) $(LINT_FLAGS) $(NTP_AUTH_KEYMEM_SRC)
 
 
 clean:
