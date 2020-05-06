@@ -724,10 +724,10 @@ module ntp_auth_keymem(
         end
       FSM_HOST_RESET:
         begin
-          ram_client_en = 1;
-          ram_client_we = 1;
-          ram_client_addr = reset_counter_reg;
-          ram_client_di = 0;
+          ram_host_en = 1;
+          ram_host_we = 1;
+          ram_host_addr = reset_counter_reg;
+          ram_host_di = 0;
         end
       default: ;
     endcase
