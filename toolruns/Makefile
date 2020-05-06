@@ -72,8 +72,7 @@ lint: $(NTS_KEYMEM_SRC) $(NTP_AUTH_KEYMEM_SRC)
 
 
 clean:
-	rm -f keymem.sim
-	rm -f *.vcd
+	rm -f keymem*.sim *.vcd
 
 
 help:
