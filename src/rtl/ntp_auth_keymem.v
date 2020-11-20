@@ -8,7 +8,7 @@
 //
 // Author: Peter Magnusson
 //
-// Copyright (c) 2020, The Swedish Post and Telecom Authority (PTS)
+// Copyright (c) 2020, Netnod Internet Exchange i Sverige AB (Netnod).
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without

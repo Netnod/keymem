@@ -1,14 +1,14 @@
 //======================================================================
 //
 // tb_ntp_auth_keymem.v
-// ------------
+// --------------------
 // key memory for the NTP Authentication (SHA1, MD5).
 // Supports many separate keys, with key usage counters.
 //
 //
 // Author: Peter Magnusson
 //
-// Copyright (c) 2020, The Swedish Post and Telecom Authority (PTS)
+// Copyright (c) 2020, Netnod Internet Exchange i Sverige AB (Netnod).
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -100,7 +100,7 @@ module tb_ntp_auth_keymem;
   // Wires to DUT, Design Under Test. Client Side.
   //----------------------------------------------------------------
 
-  reg           i_get_key_md5; 
+  reg           i_get_key_md5;
   reg           i_get_key_sha1;
   reg  [31 : 0] i_keyid;
   wire  [2 : 0] o_key_word;
@@ -508,7 +508,7 @@ module tb_ntp_auth_keymem;
       `test( "test_keys(md5)", key === expected );
     end
   end
-    
+
   endtask
 
   //----------------------------------------------------------------

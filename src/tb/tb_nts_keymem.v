@@ -1,13 +1,13 @@
 //======================================================================
 //
 // tb_nt_keymem.v
-// ---------------
+// --------------
 // Testbench for NTS keymem.
 //
 //
 // Author: Joachim Strombergson
 //
-// Copyright (c) 2019, The Swedish Post and Telecom Authority (PTS)
+// Copyright (c) 2019, Netnod Internet Exchange i Sverige AB (Netnod).
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
